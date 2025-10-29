@@ -46,7 +46,7 @@ export class WebRTCService {
     if (envUrl && envUrl.trim().length > 0) return envUrl;
     const hostname = (typeof window !== 'undefined' && window.location && window.location.hostname) ? window.location.hostname : '';
     if (hostname.endsWith('luckyverse.club')) {
-      return 'wss://api.p2pchat.luckyverse.club';
+      return 'https://api.p2pchat.luckyverse.club';
     }
     return 'http://localhost:30001';
   }
@@ -61,7 +61,7 @@ export class WebRTCService {
     return 'http://localhost:30001';
   }
 
-  async connect(serverUrl: string = this.getSignalingServerUrl()): Promise<void> {
+  async connect(serverUrl: string = this.getSignalingServerUrl()): Promise<void> {    
     return new Promise((resolve, reject) => {
       this.socket = io(serverUrl);
       
