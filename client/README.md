@@ -1,46 +1,77 @@
-# Getting Started with Create React App
+# P2P Chat Client (Vite + React + TypeScript)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend for the P2P Chat application. It uses Vite for development and build, and connects to a Socket.IO signaling server to establish WebRTC peer-to-peer data channels for chat.
 
-## Available Scripts
+## Dev URLs and Ports
 
-In the project directory, you can run:
+- App (Vite dev server): http://localhost:30002
+- API/Signaling (server): http://localhost:30001
 
-### `npm start`
+## Environment Variables
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Create these files (values shown are typical defaults):
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- `.env.development`
+  ```env
+  REACT_APP_SIGNALING_SERVER_URL=http://localhost:30001
+  REACT_APP_API_BASE_URL=http://localhost:30001
+  ```
 
-### `npm test`
+- `.env.production`
+  ```env
+  REACT_APP_SIGNALING_SERVER_URL=wss://api.p2pchat.luckyverse.club
+  REACT_APP_API_BASE_URL=https://api.p2pchat.luckyverse.club
+  ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Notes:
+- Only variables prefixed with `REACT_APP_` are exposed to the app.
+- Production values should use `wss://` for Socket.IO and `https://` for REST.
 
-### `npm run build`
+## Scripts
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+From the `client/` directory:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `npm run dev` — Start Vite dev server on port 30002
+- `npm run build` — Build for production (outputs to `dist/`)
+- `npm run preview` — Preview the built app locally on port 30002
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## API Proxy (Dev)
 
-### `npm run eject`
+`vite.config.js` proxies `/api` to your local server:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```js
+server: {
+  host: true,
+  port: 30002,
+  proxy: {
+    '/api': {
+      target: 'http://localhost:30001',
+      changeOrigin: true
+    }
+  }
+}
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The app uses absolute URLs derived from `REACT_APP_API_BASE_URL` and `REACT_APP_SIGNALING_SERVER_URL` for fetch and Socket.IO connections.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Build & Deploy
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. Set production env vars (see above)
+2. `npm run build`
+3. Serve the `dist/` directory via your hosting/CDN
 
-## Learn More
+If your platform uses Vite Preview for staging, `vite.config.js` includes:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```js
+preview: {
+  host: true,
+  port: 30002,
+  allowedHosts: ['localhost', 'p2pchat.luckyverse.club', '.luckyverse.club']
+}
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Troubleshooting
+
+- Seeing CORS errors? Ensure the server allows your client origin and that env URLs are correct.
+- Cannot connect via WebSocket in production? Use `wss://` and ensure TLS termination is configured at the reverse proxy.
+- Messages not delivered P2P? The app falls back to server relay; verify STUN/TURN if P2P is required across NATs.
