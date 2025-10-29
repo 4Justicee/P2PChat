@@ -29,7 +29,6 @@ export class WebRTCService {
   private callbacks: WebRTCServiceCallbacks;
   private currentUserId: string = '';
   private currentUsername: string = '';
-  private currentRoomId: string = '';
 
   // STUN/TURN server configuration
   private iceServers: RTCIceServer[] = [
@@ -88,7 +87,6 @@ export class WebRTCService {
 
     this.socket.on('room-joined', (data) => {
       console.log('Joined room:', data);
-      this.currentRoomId = data.roomId;
       
       // Establish P2P connections with existing participants
       data.participants.forEach((participant: Participant) => {
@@ -150,7 +148,6 @@ export class WebRTCService {
 
   async joinRoom(roomId: string, username: string): Promise<void> {
     this.currentUsername = username;
-    this.currentRoomId = roomId;
     
     if (this.socket) {
       this.socket.emit('join-room', { roomId, username });
@@ -322,7 +319,7 @@ export class WebRTCService {
 
     // Send via P2P data channels
     let sentViaP2P = false;
-    this.dataChannels.forEach((dataChannel, userId) => {
+    this.dataChannels.forEach((dataChannel) => {
       if (dataChannel.readyState === 'open') {
         dataChannel.send(JSON.stringify(messageData));
         sentViaP2P = true;

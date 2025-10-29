@@ -4,10 +4,9 @@ import './MessageList.css';
 
 interface MessageListProps {
   messages: Message[];
-  currentUserId: string;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], { 
       hour: '2-digit', 
