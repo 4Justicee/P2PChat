@@ -1,6 +1,6 @@
-# P2P Chat Application
+# P2P Chat (WebRTC + Socket.IO + Vite)
 
-A peer-to-peer real-time chat application built with Node.js, React, and WebRTC. This application demonstrates direct peer-to-peer communication without relying on existing P2P libraries, using WebRTC for the actual P2P connections and a Node.js signaling server for connection establishment.
+A peer-to-peer real-time chat app. WebRTC data channels carry messages directly between peers; a Node.js/Socket.IO server is used only for signaling (offer/answer/ICE) and room management.
 
 ## Features
 
@@ -20,11 +20,11 @@ A peer-to-peer real-time chat application built with Node.js, React, and WebRTC.
 - **Room Management**: Create and manage chat rooms
 - **ICE Candidate Exchange**: Facilitates P2P connection establishment
 
-### Frontend (React + TypeScript)
+### Frontend (React + TypeScript + Vite)
 - **WebRTC Service**: Manages peer connections and data channels
 - **React Components**: Modular UI components for chat interface
 - **Real-time Updates**: Live connection status and participant management
-- **Responsive Design**: Works on desktop and mobile devices
+- **Vite Dev/Preview**: Fast dev server and preview
 
 ## How It Works
 
@@ -59,22 +59,35 @@ A peer-to-peer real-time chat application built with Node.js, React, and WebRTC.
    cd ..
    ```
 
-3. **Start the application**
+3. **Environment variables**
+   - Server (`server/.env`):
+     ```env
+     PORT=30001
+     ```
+   - Client dev (`client/.env.development`):
+     ```env
+     REACT_APP_SIGNALING_SERVER_URL=http://localhost:30001
+     REACT_APP_API_BASE_URL=http://localhost:30001
+     ```
+   - Client production (`client/.env.production`):
+     ```env
+     REACT_APP_SIGNALING_SERVER_URL=wss://api.p2pchat.luckyverse.club
+     REACT_APP_API_BASE_URL=https://api.p2pchat.luckyverse.club
+     ```
+
+4. **Start the application**
    ```bash
-   # Start both server and client
-   npm run dev
-   
-   # Or start them separately:
-   # Terminal 1: Start server
+   # Terminal 1: Start server (Node/Express on 30001)
    npm run server
-   
-   # Terminal 2: Start client
-   npm run client
+
+   # Terminal 2: Start client (Vite dev on 30002)
+   cd client
+   npm run dev
    ```
 
 ## Usage
 
-1. **Open the application** in your browser (usually `http://localhost:3000`)
+1. **Open the application** in your browser: `http://localhost:30002`
 2. **Enter your username** and click "Connect"
 3. **Join a room** by entering a room ID, or **create a new room**
 4. **Start chatting** - messages are sent directly between peers!
@@ -102,8 +115,12 @@ The application uses Google's public STUN servers by default. For production use
 - Implementing authentication for TURN servers
 
 ### Environment Variables
-- `PORT` - Server port (default: 5000)
-- `NODE_ENV` - Environment mode
+- Server
+  - `PORT` - Server port (default: 30001)
+  - `NODE_ENV` - Environment mode
+- Client (Vite/CRA expose `REACT_APP_*` at build time)
+  - `REACT_APP_SIGNALING_SERVER_URL` - Socket.IO signaling endpoint (http:// in dev, wss:// in prod)
+  - `REACT_APP_API_BASE_URL` - REST API base (http:// in dev, https:// in prod)
 
 ## Browser Support
 
@@ -137,11 +154,14 @@ p2p-chat-app/
 ```
 
 ### Available Scripts
-- `npm start` - Start the server
-- `npm run dev` - Start both server and client
-- `npm run server` - Start server only
-- `npm run client` - Start client only
-- `npm run build` - Build client for production
+- Root
+  - `npm start` - Start server
+  - `npm run server` - Start server (nodemon in dev)
+  - `npm run build` - Build client (delegates to client)
+- Client (`client/`)
+  - `npm run dev` - Start Vite dev server on 30002
+  - `npm run build` - Build client for production
+  - `npm run preview` - Preview built client
 
 ## Troubleshooting
 
