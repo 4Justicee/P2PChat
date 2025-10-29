@@ -1,0 +1,24 @@
+{
+  "name": "p2p-chat-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  },
+  "scripts": {
+    "dev": "vite --port 30002",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 30002",
+    "start": "vite --port 30002"
+  }
+}

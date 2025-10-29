@@ -1,0 +1,169 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0a0a1a;
+  color: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 160px 30px, #ddd, transparent),
+    radial-gradient(1px 1px at 190px 60px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 220px 90px, #eee, transparent),
+    radial-gradient(2px 2px at 250px 40px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 280px 70px, #fff, transparent),
+    radial-gradient(1px 1px at 310px 20px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 340px 50px, #ddd, transparent),
+    radial-gradient(1px 1px at 370px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 400px 30px, #eee, transparent),
+    radial-gradient(2px 2px at 430px 60px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 460px 10px, #fff, transparent),
+    radial-gradient(1px 1px at 490px 40px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 520px 70px, #ddd, transparent),
+    radial-gradient(1px 1px at 550px 20px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 580px 50px, #eee, transparent),
+    radial-gradient(2px 2px at 610px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 640px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 670px 60px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 700px 10px, #ddd, transparent),
+    radial-gradient(1px 1px at 730px 40px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 760px 70px, #eee, transparent),
+    radial-gradient(2px 2px at 790px 20px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 820px 50px, #fff, transparent),
+    radial-gradient(1px 1px at 850px 80px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(2px 2px at 880px 30px, #ddd, transparent),
+    radial-gradient(1px 1px at 910px 60px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 940px 10px, #eee, transparent),
+    radial-gradient(2px 2px at 970px 40px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 1000px 70px, #fff, transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: twinkle 4s ease-in-out infinite alternate;
+  z-index: -2;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.1) 0%, rgba(75, 0, 130, 0.15) 25%, rgba(72, 61, 139, 0.1) 50%, rgba(106, 90, 205, 0.15) 75%, rgba(123, 104, 238, 0.1) 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+  z-index: -1;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.App {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Input focus effects */
+input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+/* Loading animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+}
