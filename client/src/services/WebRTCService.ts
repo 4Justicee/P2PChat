@@ -43,21 +43,22 @@ export class WebRTCService {
 
   private getSignalingServerUrl(): string {
     const envUrl = process.env.REACT_APP_SIGNALING_SERVER_URL;
-    return envUrl && envUrl.trim().length > 0 ? envUrl : 'http://localhost:30001';
+    if (envUrl && envUrl.trim().length > 0) return envUrl;
+    const hostname = (typeof window !== 'undefined' && window.location && window.location.hostname) ? window.location.hostname : '';
+    if (hostname.endsWith('luckyverse.club')) {
+      return 'wss://api.p2pchat.luckyverse.club';
+    }
+    return 'http://localhost:30001';
   }
 
   private getApiBaseUrl(): string {
     const envUrl = process.env.REACT_APP_API_BASE_URL;
     if (envUrl && envUrl.trim().length > 0) return envUrl;
-    // Derive API base (HTTP/HTTPS) from signaling URL if possible
-    try {
-      const signalingUrl = this.getSignalingServerUrl();
-      const url = new URL(signalingUrl);
-      const protocol = url.protocol.startsWith('ws') ? (url.protocol === 'wss:' ? 'https:' : 'http:') : url.protocol;
-      return `${protocol}//${url.host}`;
-    } catch {
-      return 'http://localhost:30001';
+    const hostname = (typeof window !== 'undefined' && window.location && window.location.hostname) ? window.location.hostname : '';
+    if (hostname.endsWith('luckyverse.club')) {
+      return 'https://api.p2pchat.luckyverse.club';
     }
+    return 'http://localhost:30001';
   }
 
   async connect(serverUrl: string = this.getSignalingServerUrl()): Promise<void> {
