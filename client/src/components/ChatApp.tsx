@@ -169,7 +169,7 @@ const ChatApp: React.FC = () => {
         </div>
         
         <div className="chat-main">
-          <MessageList messages={messages} currentUserId={webrtcService?.getConnectionState() || 'disconnected'} />
+          <MessageList messages={messages} />
           <MessageInput onSendMessage={handleSendMessage} />
         </div>
       </div>

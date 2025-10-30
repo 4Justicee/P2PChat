@@ -4,10 +4,9 @@ import './MessageList.css';
 
 interface MessageListProps {
   messages: Message[];
-  currentUserId: string;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const formatTime = (timestamp: string) => {

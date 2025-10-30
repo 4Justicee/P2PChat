@@ -88,11 +88,19 @@ export class WebRTCService {
 
     this.socket.on('room-joined', (data) => {
       console.log('Joined room:', data);
+      console.log('Current user ID:', this.currentUserId);
+      console.log('Participants in room:', data.participants);
       
-      // Establish P2P connections with existing participants
+      // Add existing participants to the UI
+      // Existing users will initiate connections to us
       data.participants.forEach((participant: Participant) => {
+        console.log('Checking participant:', participant.userId, 'vs current:', this.currentUserId);
         if (participant.userId !== this.currentUserId) {
-          this.createPeerConnection(participant.userId);
+          console.log('Adding existing participant to list:', participant.username);
+          this.callbacks.onParticipantJoined({
+            userId: participant.userId,
+            username: participant.username
+          });
         }
       });
     });
@@ -104,7 +112,7 @@ export class WebRTCService {
         username: data.username
       });
       
-      // Create P2P connection with new user
+      // WE are the existing user, so WE initiate the connection
       this.createPeerConnection(data.userId);
     });
 
@@ -174,6 +182,8 @@ export class WebRTCService {
 
   private async createPeerConnection(targetUserId: string): Promise<void> {
     try {
+      console.log('Initiating peer connection with:', targetUserId);
+      
       const peerConnection = new RTCPeerConnection({
         iceServers: this.iceServers
       });
@@ -190,10 +200,12 @@ export class WebRTCService {
       this.dataChannels.set(targetUserId, dataChannel);
 
       // Create and send offer
+      console.log('Creating offer for:', targetUserId);
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
       
       if (this.socket) {
+        console.log('Sending offer to:', targetUserId);
         this.socket.emit('offer', {
           targetUserId,
           offer
@@ -265,6 +277,7 @@ export class WebRTCService {
       let peerConnection = this.peerConnections.get(fromUserId);
       
       if (!peerConnection) {
+        console.log('Creating new peer connection for offer from:', fromUserId);
         peerConnection = new RTCPeerConnection({
           iceServers: this.iceServers
         });
@@ -272,11 +285,15 @@ export class WebRTCService {
         this.peerConnections.set(fromUserId, peerConnection);
       }
 
+      console.log('Setting remote description (offer) from:', fromUserId);
       await peerConnection.setRemoteDescription(offer);
+      
+      console.log('Creating answer for:', fromUserId);
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
       if (this.socket) {
+        console.log('Sending answer to:', fromUserId);
         this.socket.emit('answer', {
           targetUserId: fromUserId,
           answer
@@ -290,12 +307,28 @@ export class WebRTCService {
 
   private async handleAnswer(fromUserId: string, answer: RTCSessionDescriptionInit): Promise<void> {
     try {
+      console.log('Handling answer from:', fromUserId);
       const peerConnection = this.peerConnections.get(fromUserId);
-      if (peerConnection) {
+      if (!peerConnection) {
+        console.error('Received answer but no peer connection exists for:', fromUserId);
+        console.log('Available peer connections:', Array.from(this.peerConnections.keys()));
+        return;
+      }
+      
+      console.log('Peer connection state:', peerConnection.signalingState);
+      console.log('Connection state:', peerConnection.connectionState);
+      
+      // Only set remote description if we're in the right state
+      if (peerConnection.signalingState === 'have-local-offer') {
+        console.log('Setting remote description (answer) for:', fromUserId);
         await peerConnection.setRemoteDescription(answer);
+        console.log('Successfully set remote description for:', fromUserId);
+      } else {
+        console.error('Received answer in wrong signaling state:', peerConnection.signalingState, 'for user:', fromUserId);
+        this.callbacks.onError(`Wrong signaling state: ${peerConnection.signalingState}`);
       }
     } catch (error) {
-      console.error('Error handling answer:', error);
+      console.error('Error handling answer from:', fromUserId, 'Error:', error);
       this.callbacks.onError('Failed to handle connection answer');
     }
   }
