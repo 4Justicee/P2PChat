@@ -8,6 +8,10 @@
   overflow: hidden;
 }
 
+.chat-app.connection-screen {
+  overflow-y: auto;
+}
+
 .chat-app::before {
   content: '';
   position: absolute;
@@ -164,14 +168,33 @@
   }
   
   .chat-header {
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     text-align: center;
+    border-radius: 0 0 10px 10px;
+    margin: 5px 5px 0 5px;
+  }
+  
+  .chat-header h1 {
+    font-size: 0.9rem;
+    font-weight: 600;
   }
   
   .header-info {
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.5rem;
+    font-size: 0.7rem;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .username {
+    font-size: 0.7rem;
+  }
+  
+  .leave-button {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
   }
 }

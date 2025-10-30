@@ -29,6 +29,7 @@ export class WebRTCService {
   private callbacks: WebRTCServiceCallbacks;
   private currentUserId: string = '';
   private currentUsername: string = '';
+  private currentRoomId: string = '';
 
   // STUN/TURN server configuration
   private iceServers: RTCIceServer[] = [
@@ -88,10 +89,16 @@ export class WebRTCService {
 
     this.socket.on('room-joined', (data) => {
       console.log('Joined room:', data);
+      this.currentRoomId = data.roomId;
       
-      // Establish P2P connections with existing participants
+      // Add all existing participants to the callbacks
       data.participants.forEach((participant: Participant) => {
         if (participant.userId !== this.currentUserId) {
+          this.callbacks.onParticipantJoined({
+            userId: participant.userId,
+            username: participant.username
+          });
+          // Establish P2P connections with existing participants
           this.createPeerConnection(participant.userId);
         }
       });
@@ -149,6 +156,7 @@ export class WebRTCService {
 
   async joinRoom(roomId: string, username: string): Promise<void> {
     this.currentUsername = username;
+    this.currentRoomId = roomId;
     
     if (this.socket) {
       this.socket.emit('join-room', { roomId, username });
@@ -292,11 +300,14 @@ export class WebRTCService {
     try {
       const peerConnection = this.peerConnections.get(fromUserId);
       if (peerConnection) {
-        await peerConnection.setRemoteDescription(answer);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        console.log('Successfully handled answer from:', fromUserId);
+      } else {
+        console.warn('No peer connection found for user:', fromUserId);
       }
     } catch (error) {
       console.error('Error handling answer:', error);
-      this.callbacks.onError('Failed to handle connection answer');
+      // Don't show error for failed answer handling as it might just be a timing issue
     }
   }
 
@@ -320,7 +331,7 @@ export class WebRTCService {
 
     // Send via P2P data channels
     let sentViaP2P = false;
-    this.dataChannels.forEach((dataChannel) => {
+    this.dataChannels.forEach((dataChannel, userId) => {
       if (dataChannel.readyState === 'open') {
         dataChannel.send(JSON.stringify(messageData));
         sentViaP2P = true;

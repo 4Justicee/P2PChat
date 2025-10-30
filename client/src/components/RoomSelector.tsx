@@ -50,6 +50,18 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({
     onCreateRoom(username.trim());
   };
 
+  const handleUsernameKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleConnect();
+    }
+  };
+
+  const handleRoomIdKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleJoinRoom();
+    }
+  };
+
   const getConnectionStatusColor = () => {
     switch (connectionState) {
       case 'connected': return '#4CAF50';
@@ -68,6 +80,7 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({
             placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={handleUsernameKeyPress}
             className="username-input"
           />
           <button
@@ -98,6 +111,7 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({
                 placeholder="Enter Room ID"
                 value={roomId}
                 onChange={(e) => setRoomId(e.target.value)}
+                onKeyDown={handleRoomIdKeyPress}
                 className="room-input"
               />
               <button
@@ -113,6 +127,11 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({
             <h3>Create New Room</h3>
             <button
               onClick={handleCreateRoom}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleCreateRoom();
+                }
+              }}
               className="create-button"
             >
               Create New Room
