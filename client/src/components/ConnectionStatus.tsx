@@ -7,21 +7,26 @@ interface ConnectionStatusProps {
 }
 
 const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ state, participantCount }) => {
+  // Show "Waiting for..." if only 1 participant (alone in room)
+  const isAlone = participantCount === 1;
+  
   const getStatusColor = () => {
+    if (isAlone) return '#FFD700'; // Yellow for "Waiting for..."
     switch (state) {
-      case 'connected': return '#4CAF50';
-      case 'connecting': return '#FF9800';
+      case 'connected': return '#2196F3'; // Blue for "Connected"
+      case 'connecting': return '#2196F3'; // Blue for "Connected"
       case 'disconnected': return '#F44336';
-      default: return '#9E9E9E';
+      default: return '#FFD700';
     }
   };
 
   const getStatusText = () => {
+    if (isAlone) return 'Waiting for...';
     switch (state) {
-      case 'connected': return 'P2P Connected';
-      case 'connecting': return 'Connecting...';
+      case 'connected': return 'Connected';
+      case 'connecting': return 'Connected';
       case 'disconnected': return 'Disconnected';
-      default: return 'Unknown';
+      default: return 'Connected';
     }
   };
 

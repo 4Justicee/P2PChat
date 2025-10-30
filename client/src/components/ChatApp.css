@@ -1,10 +1,11 @@
 .chat-app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
   background: transparent;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
+  overflow: hidden;
 }
 
 .chat-app::before {
@@ -70,6 +71,7 @@
 .chat-container {
   display: flex;
   flex: 1;
+  min-height: 0;
   overflow: hidden;
   margin: 0 10px 10px 10px;
   border-radius: 20px;
@@ -122,6 +124,8 @@
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   border-radius: 0 20px 20px 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .error-message {

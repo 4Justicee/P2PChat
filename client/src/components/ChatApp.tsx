@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WebRTCService, Message, Participant } from '../services/WebRTCService';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -15,7 +15,6 @@ const ChatApp: React.FC = () => {
   const [isInRoom, setIsInRoom] = useState<boolean>(false);
   const [currentRoomId, setCurrentRoomId] = useState<string>('');
   const [currentUsername, setCurrentUsername] = useState<string>('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const service = new WebRTCService({
@@ -43,19 +42,10 @@ const ChatApp: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const handleConnect = async () => {
     if (!webrtcService) return;
     
     try {
-      setConnectionState('connecting');
       await webrtcService.connect();
       setError('');
     } catch (err) {
@@ -179,8 +169,7 @@ const ChatApp: React.FC = () => {
         </div>
         
         <div className="chat-main">
-          <MessageList messages={messages} />
-          <div ref={messagesEndRef} />
+          <MessageList messages={messages} currentUserId={webrtcService?.getConnectionState() || 'disconnected'} />
           <MessageInput onSendMessage={handleSendMessage} />
         </div>
       </div>
