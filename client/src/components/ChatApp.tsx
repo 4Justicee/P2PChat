@@ -119,7 +119,7 @@ const ChatApp: React.FC = () => {
 
   if (!isInRoom) {
     return (
-      <div className="chat-app">
+      <div className="chat-app connection-screen">
         <div className="chat-header">
           <h1>P2P Chat Application</h1>
           <p>Peer-to-Peer Real-time Communication using WebRTC</p>

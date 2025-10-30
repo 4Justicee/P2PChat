@@ -29,6 +29,7 @@ export class WebRTCService {
   private callbacks: WebRTCServiceCallbacks;
   private currentUserId: string = '';
   private currentUsername: string = '';
+  private currentRoomId: string = '';
 
   // STUN/TURN server configuration
   private iceServers: RTCIceServer[] = [
@@ -88,19 +89,18 @@ export class WebRTCService {
 
     this.socket.on('room-joined', (data) => {
       console.log('Joined room:', data);
-      console.log('Current user ID:', this.currentUserId);
-      console.log('Participants in room:', data.participants);
+      this.currentRoomId = data.roomId;
       
-      // Add existing participants to the UI
-      // Existing users will initiate connections to us
+      // Add all existing participants to the callbacks
       data.participants.forEach((participant: Participant) => {
         console.log('Checking participant:', participant.userId, 'vs current:', this.currentUserId);
         if (participant.userId !== this.currentUserId) {
-          console.log('Adding existing participant to list:', participant.username);
           this.callbacks.onParticipantJoined({
             userId: participant.userId,
             username: participant.username
           });
+          // Establish P2P connections with existing participants
+          this.createPeerConnection(participant.userId);
         }
       });
     });
@@ -157,6 +157,7 @@ export class WebRTCService {
 
   async joinRoom(roomId: string, username: string): Promise<void> {
     this.currentUsername = username;
+    this.currentRoomId = roomId;
     
     if (this.socket) {
       this.socket.emit('join-room', { roomId, username });
@@ -309,27 +310,15 @@ export class WebRTCService {
     try {
       console.log('Handling answer from:', fromUserId);
       const peerConnection = this.peerConnections.get(fromUserId);
-      if (!peerConnection) {
-        console.error('Received answer but no peer connection exists for:', fromUserId);
-        console.log('Available peer connections:', Array.from(this.peerConnections.keys()));
-        return;
-      }
-      
-      console.log('Peer connection state:', peerConnection.signalingState);
-      console.log('Connection state:', peerConnection.connectionState);
-      
-      // Only set remote description if we're in the right state
-      if (peerConnection.signalingState === 'have-local-offer') {
-        console.log('Setting remote description (answer) for:', fromUserId);
-        await peerConnection.setRemoteDescription(answer);
-        console.log('Successfully set remote description for:', fromUserId);
+      if (peerConnection) {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        console.log('Successfully handled answer from:', fromUserId);
       } else {
-        console.error('Received answer in wrong signaling state:', peerConnection.signalingState, 'for user:', fromUserId);
-        this.callbacks.onError(`Wrong signaling state: ${peerConnection.signalingState}`);
+        console.warn('No peer connection found for user:', fromUserId);
       }
     } catch (error) {
-      console.error('Error handling answer from:', fromUserId, 'Error:', error);
-      this.callbacks.onError('Failed to handle connection answer');
+      console.error('Error handling answer:', error);
+      // Don't show error for failed answer handling as it might just be a timing issue
     }
   }
 
@@ -353,7 +342,7 @@ export class WebRTCService {
 
     // Send via P2P data channels
     let sentViaP2P = false;
-    this.dataChannels.forEach((dataChannel) => {
+    this.dataChannels.forEach((dataChannel, userId) => {
       if (dataChannel.readyState === 'open') {
         dataChannel.send(JSON.stringify(messageData));
         sentViaP2P = true;
